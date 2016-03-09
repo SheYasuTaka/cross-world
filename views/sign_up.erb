@@ -1,0 +1,37 @@
+
+<form action='/signup' method=post class='center'>
+    <table>
+        <tr>
+            <td>User name</td>
+            <td><input type=text name='un' placeholder='User name'></td>
+        </tr>
+        <tr>
+            <td>E-mail address</td>
+            <td><input type=text name='mail' placeholder='E-mail'></td>
+        </tr>
+        <tr>
+            <td>Password</td>
+                <td><input type=password name='pw' placeholder='Password'></td>
+        </tr>
+        <tr>
+            <td>Password(Re-input)</td>
+            <td><input type=password name='pw_conf' placeholder='Confirmation password'></td>
+        </tr>
+        <tr>
+            <td>Security question</td></td>
+            <td><input type=text name='forgot_q' placeholder='Security question'></td>
+        </tr>
+        <tr>
+            <td>The answer to it</td></td>
+            <td><input type=text name='forgot_a' placeholder='Security answer'></td>
+        </tr>
+        <tr>
+            <td colspan=2>
+                <input type=submit value='Sign up'>
+            </td>
+        </tr>
+    </table>
+</form>
+<% if @fail %>
+    <span class="scarlet"><%= @fail %></span><br>
+<% end %>

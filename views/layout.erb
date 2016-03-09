@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TITLE</title>
+  <script type='text/javascript' src='/assets/js/common.js'></script>
+  <link rel='stylesheet' href='/assets/css/style.css'>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>
+  <script type='text/javascript' href='https://bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+  <script type='text/javascript' src='//code.jquery.com/jquery-1.11.0.min.js'></script>
+</head>
+<body>
+   <div id="header-bk">
+      <div id="header">
+        <% if session[:user] %>
+          <!-- Logined -->
+          <% name = CGI.escapeHTML(User.find(session[:user]).username) %>
+          <div class='row'>
+            <div class=''>
+              <%= name %>
+              <form action='/signout' method='get'><input type=submit value='Log out'></form>
+            </div>
+          </div>
+        <% else %>
+          <!-- Unlogined -->
+          <div>
+              <div>
+                <form id='sin' action='/sin' method=get class='form-inline'>
+                  <input type=text name='un' placeholder='User name'>
+                  <input type=password name='pw' placeholder='Password'>
+                  <input type=submit value='Log in'>
+                </form>
+              </div>
+              <div>
+                <form action='/goto_sup' method=post>
+                  <input type=submit value='Sign up'>
+                </form>
+              </div>
+              <div>
+                <a href='/forgot/conf'>Did you forget password?</a>
+              </div>
+          </div>
+        <% end %>
+      </div>
+  <form action='/search' method=get class='center'>
+    <div class='howto'>
+      <!-- how to -->
+    </div>
+    <div class='chief-conditions'>
+      Regular expression:<br>
+      <input type=text name='regexp'><br>
+      Including tags:<br>
+      <input type=text name='inctags'><br>
+    </div>
+    <div class='more-conditions search-word'>
+      Excluding tags:<br>
+        <input type=text name='exctags'><br>
+    </div>
+    <input type=submit value='Search'><br>
+    <!---->
+  </form>
+  </div>
+  <div>
+  <%= yield %>
+</div>
+</body>
+</html>

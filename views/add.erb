@@ -1,0 +1,33 @@
+
+<form action='/add' method=post class='center'>
+    <table>
+        <tr>
+            <td>Name</td>
+            <td><input type=text name='main' placeholder='Word' value='<%= @req %>'></td>
+        </tr>
+        <tr>
+            <td>About the word</td>
+            <td><textarea name='about' placeholder='About'></textarea></td>
+        </tr>
+        <tr>
+            <td>Tags</td>
+            <td><input type=text name='tags' placeholder='Tags'></td>
+        </tr>
+        <tr>
+            <td>Parent words</td>
+            <td><input type=text name='parents' placeholder='Parents'></td>
+        </tr>
+        <tr>
+            <td>Child words</td>
+            <td><input type=text name='children' placeholder='Children'></td>
+        </tr>
+        <tr>
+            <td colspan=2>
+                <input type=submit value='Add'>
+            </td>
+        </tr>
+    </table>
+</form>
+<% if @fail %>
+    <span class="scarlet"><%= @fail %></span>
+<% end %>

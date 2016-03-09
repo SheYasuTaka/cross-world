@@ -1,0 +1,11 @@
+
+<form action='/reset_password' method=post>
+    Please input new password:<br>
+    <input type=password name='pw'><br>
+    <input type=password name='pw_conf'>(Re-input)<br>
+    <input type=submit value='Change the password'>
+</form>
+<% if @fail %>
+  <span class='scarlet'>The passwords didn't watch</span><br>
+<% end %>
+    

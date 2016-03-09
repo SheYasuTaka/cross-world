@@ -1,0 +1,43 @@
+<% case @fail %>
+<% when 'unmatch for lang' %>
+
+<h2>
+    The word is not a Japanese word.
+</h2>
+<% when 'not found' %>
+
+<h2>
+    The word doesn't already exist.<br>
+    <a href='/add'>Do you want to create about <span class='scarlet'><%= @request_word %></span>?</a><br>
+</h2>
+
+<% else %>
+
+<div class='center'>
+<table class='center' border=1>
+    <tr>
+        <th colspan=2>
+            <%= @request_word %>
+        </th>
+    </tr>
+    <tr>
+        <th colspan=2>
+            <%= @about %>
+        </th>
+    </tr>
+    <tr>
+        <th colspan=2>
+            <%= @tags %>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <%= @par %>
+        </th>
+        <th>
+            <%= @chl %>
+        </th>
+    </tr>
+</table>
+</div>
+<% end %>

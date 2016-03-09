@@ -1,0 +1,7 @@
+
+<form action='/forgot/conf' method=post>
+  Enter your user-name:<input type='text' name='un'> <input type=submit value='next'>
+</form>
+<% if @fail %>
+  <span class='scarlet'><%= @fail %></span><br>
+<% end %>

@@ -1,0 +1,10 @@
+
+<form action='/forgot/watchword' method=post>
+    Answer your security question:<br>
+    <%= CGI.escapeHTML(User.find(session[:f]).sec_q) %><br>
+    <input type='text' name='ans'><br>
+    <input type=submit value='Change the password'>
+    <% if @fail %>
+        <span class='scarlet'><%= @fail %></span><br>
+    <% end %>
+</form>

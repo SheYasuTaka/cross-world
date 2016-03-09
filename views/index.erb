@@ -1,0 +1,11 @@
+
+<% if session[:user] %>
+  <% name = CGI.escapeHTML(User.find(session[:user]).username) %>
+  <h2>You logged in as <span class='scarlet'><%= name %></span></h2>
+<% else %>
+  <h2>You don't log in yet</h2>
+<% end %>
+<!-- unCSS start -->
+<a href='/add'>Add new word</a><br>
+
+<!-- unCSS _end_ -->
