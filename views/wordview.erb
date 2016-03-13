@@ -43,6 +43,13 @@
             <a href='/newq/<%= @request_word %>'>New question?</a>
         </th>
     </tr>
+    <% @ques.each do |ques| %>
+    <tr>
+        <th colspan=2>
+            <%= CGI.escapeHTML(ques) %>
+        </th>
+    </tr>
+    <% end %>
 </table>
 </div>
 <% end %>

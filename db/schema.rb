@@ -29,8 +29,9 @@ ActiveRecord::Schema.define(version: 20151115082013) do
     t.text     "about",      limit: 65535
     t.text     "parents",    limit: 65535
     t.text     "children",   limit: 65535
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.text     "faq",        limit: 16777215
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
 end

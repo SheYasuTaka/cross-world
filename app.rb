@@ -299,9 +299,10 @@ get '/word/:id' do
         p @request_word
         @word_id = word.id
         @about = CGI.escapeHTML(word.about)
-        @tags = tags_to_view(split_with_blank(word.tags)) # TODO: 
-        @par = words_to_view(split_with_blank(word.parents)) # TODO: 
-        @chl = words_to_view(split_with_blank(word.children)) # TODO: 
+        @tags = tags_to_view(split_with_blank(word.tags))
+        @par = words_to_view(split_with_blank(word.parents))
+        @chl = words_to_view(split_with_blank(word.children))
+        @ques = word.faq.split(/\n/)
     rescue
         p $!.to_s
         @fail = $!.to_s
@@ -317,7 +318,7 @@ get '/search' do
         courted = court_regexp(@regexp)
         query = finder_for_Word({
             main: {
-                inc: court_regexp(@regexp)
+                inc: courted
             },
             tags: {
                 inc: @inctags,
@@ -336,3 +337,24 @@ get '/newq/:word' do
     erb :newq
 end
 
+post '/newq/:word' do
+    @fail = ""
+    word = str_to_hex(params[:word])
+    user = Word.find_by(main: word)
+    if !user then
+        redirect '/'
+    else
+        ques = params[:question]
+        if user.faq.empty?
+            ques = "\n" + ques
+        end
+        user.faq << ques
+        isSaved = user.save
+        if !isSaved then
+            @fail << "Sorry, but It seems not enter anymore<br>"
+            erb :newq
+        else
+            redirect ('/word/' << CGI.escape(hex_to_str(word)))
+        end
+    end
+end

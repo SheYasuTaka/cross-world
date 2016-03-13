@@ -1,3 +1,12 @@
 <h2>
     <%= @word %>
 </h2>
+
+<form action='/newq/<%= @word %>' method=post>
+    <input type=text name="question">
+    <input type=submit value="Submit">
+</form>
+
+<% if @fail %>
+    <span class="scarlet"><%= @fail %></span><br>
+<% end %>
