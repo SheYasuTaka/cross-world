@@ -43,23 +43,24 @@
           </div>
         <% end %>
       </div>
-  <form action='/search' method=get class='center'>
-    <div class='howto'>
-      <!-- how to -->
-    </div>
-    <div class='chief-conditions'>
-      Regular expression:<br>
-      <input type=text name='regexp'><br>
-      Including tags:<br>
-      <input type=text name='inctags'><br>
-    </div>
-    <div class='more-conditions search-word'>
-      Excluding tags:<br>
-        <input type=text name='exctags'><br>
-    </div>
-    <input type=submit value='Search'><br>
-    <!---->
-  </form>
+    <a href="/">HOME</a>
+    <form action='/search' method=get class='center'>
+      <div class='howto'>
+        <!-- how to -->
+      </div>
+      <div class='chief-conditions'>
+        Regular expression:<br>
+        <input type=text name='regexp' value="<%= @regexp ? @regexp : '' %>"><br>
+        Including tags:<br>
+        <input type=text name='inctags' value="<%= @inctags ? @inctags.join(' ') : '' %>"><br>
+      </div>
+      <div class='more-conditions search-word'>
+        Excluding tags:<br>
+          <input type=text name='exctags' value="<%= @exctags ? @exctags.join(' ') : '' %>"><br>
+      </div>
+      <input type=submit value='Search'><br>
+      <!---->
+    </form>
   </div>
   <div>
   <%= yield %>

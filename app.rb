@@ -42,11 +42,52 @@ class Japanese
 end
 
 def split_with_blank (str)
-    str.split(/[[:blank]]+/)
+    str.split(/[[:blank:]]+/)
 end
 
 def escape_for_regexp (str)
     str.gsub(/(?=[\\*+.?{}()\[\]^$\-\|])/, "\\")
+end
+
+def str_to_hex (str)
+    str.codepoints.map{|v| v.to_s(0x10).rjust(4,'0')}.join('')
+    # example: "こいしちゃんはあずかった 要求はない, 1時間後に殺す"
+    # =======> "305330443057306130833093306f3042305a304b3063305f00\
+    # =======>  2089816c42306f306a3044002c00200031664295935f8c306b\
+    # =======>  6bba3059"
+end
+
+def hex_to_str (hex)
+    hex.split(/(.{4})/).map{|v| v.empty? ? '' : v.to_i(0x10).chr(Encoding::UTF_8)}.join('')
+    # example: "305330443057306130833093306f3042305a304b3063305f00\
+    # example:  2089816c42306f306a3044002c00200031664295935f8c306b\
+    # example:  6bba3059"
+    # =======> "こいしちゃんはあずかった 要求はない, 1時間後に殺す"
+end
+
+def court_regexp (str)
+    japanese = Japanese.new()
+    chars = japanese.unify(str).split('')
+    chars.map!{ |char|
+        if char !~ japanese.filter
+           str_to_hex(char)
+        else case char
+        when '+', '＋'
+            '(.{4})+'
+        when '*', '＊'
+            '(.{4})*'
+        when '.', '?', '？'
+            '(.{4})'
+        else
+            raise "invalid"
+        end
+        end
+    }
+    # str.gsub!(/\+＋/, '.+')
+    # str.gsub!(/\*＊/, '.*')
+    # str.gsub!(/\./, '(.{4})')
+    p chars
+    '^' + chars.join('') + '$'
 end
 
 def finder_for_Word (conditions)
@@ -59,14 +100,18 @@ def finder_for_Word (conditions)
             escaped = con.quote(val)
             where.push(key + " = " + escaped)
         else
-            if val[:inc]
-                val[:inc].reject{|e| e.empty?}.each { |str|
+            data = val[:inc]
+            if data
+                data = data.class.to_s === 'Array' ? data : [data]
+                data.reject{|e| e.empty?}.each { |str|
                 escaped = con.quote(str)
                     where.push(key + " REGEXP " + escaped)
                 }
             end
-            if val[:exc]
-                val[:exc].reject{|e| e.empty?}.each { |str|
+            data = val[:exc]
+            if data
+                data = data.class.to_s === 'Array' ? data : [data]
+                data.reject{|e| e.empty?}.each { |str|
                 escaped = con.quote(str)
                     where.push(key + " NOT REGEXP " + escaped)
                 }
@@ -81,14 +126,17 @@ def finder_for_Word (conditions)
 end
 
 def tags_to_view (data)
-    japanese = Japanese.new()
-    data = split_with_blank(data).map{ |item|
-        '<a href="/search?inctags='+ item +'">' + item + '</a>'
-    }
-    # 
+    data = (data.class.to_s === 'Array' ? data : [data])
+    data.map{ |item|
+        '<a href="/search?regexp=*&inctags=' + item + '">' + item + '</a>'
+    }.join('&nbsp;')
 end
 
 def words_to_view (data)
+    data = (data.class.to_s === 'Array' ? data : [data])
+    data.map{ |item|
+        '<a href="/word/' + item + '">' + item + '</a>'
+    }.join('&nbsp;')
 end
 
 get '/' do
@@ -201,35 +249,39 @@ post '/add' do
     @fail = ""
     @caution = ""
     japanese = Japanese.new()
-    main = params[:main]
+    main = japanese.unify(params[:main])
     if main.empty? then
         @fail << "Input main word<br>"
     elsif main.length <= 1 then
         @fail << "Invalid word for crossword<br>"
-    elsif Word.find_by(main: main) then
+    else
+        encoded_main = str_to_hex(main)
+        if Word.find_by(main: encoded_main) then
         @fail << "The word has already been registerd<br>"
+        end
     end
-    about = params[:about]
-    tags = split_with_blank(params[:tags]).map{|item|
-        CGI.escapeHTML(item)
-    }
-    parents = japanese.split_from(params[:parents]).map{|item|
-        CGI.escapeHTML(item)
-    }
-    children = japanese.split_from(params[:children]).map{|item|
-        CGI.escapeHTML(item)
-    }
     if !@fail.empty?
         erb :add
     else
-        word = Word.create(
-            main: main,
+        about = params[:about]
+        tags = split_with_blank(params[:tags]).map{|item|
+            CGI.escapeHTML(item)
+        }
+        parents = japanese.split_from(params[:parents]).map{|item|
+            CGI.escapeHTML(item)
+        }
+        children = japanese.split_from(params[:children]).map{|item|
+            CGI.escapeHTML(item)
+        }
+        Word.create(
+            main: encoded_main,
             tags: tags.join(' '),
             about: about,
             parents: parents.join(' '),
-            children: children.join(' ')
+            children: children.join(' '),
+            faq: ""
         )
-        redirect '/word/' << main
+        redirect ('/word/' << CGI.escape(main))
     end
 end
 
@@ -240,15 +292,16 @@ get '/word/:id' do
         if japanese.filter =~ @request_word
             raise "unmatch for lang"
         end
-        word = Word.find_by(main: @request_word)
+        word = Word.find_by(main: str_to_hex(@request_word))
         if !word
             raise "not found"
         end
+        p @request_word
         @word_id = word.id
         @about = CGI.escapeHTML(word.about)
-        @tags = word.tags.split(' ').join(' ') # TODO: 
-        @par = word.parents.split(' ').join(' ') # TODO: 
-        @chl = word.children.split(' ').join(' ') # TODO: 
+        @tags = tags_to_view(split_with_blank(word.tags)) # TODO: 
+        @par = words_to_view(split_with_blank(word.parents)) # TODO: 
+        @chl = words_to_view(split_with_blank(word.children)) # TODO: 
     rescue
         p $!.to_s
         @fail = $!.to_s
@@ -257,22 +310,29 @@ get '/word/:id' do
 end
 
 get '/search' do
-    regexp = params[:regexp]
-    inctags = split_with_blank(params[:inctags])
-    exctags = split_with_blank(params[:exctags])
-    query = finder_for_Word({
-        main: {
-            inc: [regexp]
-        },
-        tags: {
-            inc: inctags,
-            exc: exctags
-        }
-    })
-    @result = Word.find_by_sql(query)
+    @regexp = params[:regexp] || ""
+    @inctags = split_with_blank(params[:inctags] || "")
+    @exctags = split_with_blank(params[:exctags] || "")
+    begin
+        courted = court_regexp(@regexp)
+        query = finder_for_Word({
+            main: {
+                inc: court_regexp(@regexp)
+            },
+            tags: {
+                inc: @inctags,
+                exc: @exctags
+            }
+        })
+        @result = Word.find_by_sql(query).sort{ |l, r| l <=> r}
+    rescue
+    @fail = $!.to_s
+    end
     erb :srch_rslt
 end
 
-
-
+get '/newq/:word' do
+    @word = params[:word]
+    erb :newq
+end
 

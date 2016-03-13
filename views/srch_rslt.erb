@@ -1,0 +1,22 @@
+<% case @fail %>
+<% when 'invalid' %>
+
+<h2>
+    Invalid regular expression.
+</h2>
+
+<% else %>
+
+<div class='center'>
+    <table>
+    <% @result.each do |word| %>
+    <div class='word'>
+        <%= words_to_view(hex_to_str(word.main)) %>
+    </div>
+    <br>
+    <%= tags_to_view(split_with_blank(word.tags)) %>
+    <% end %>
+    </table>
+</div>
+
+<% end %>

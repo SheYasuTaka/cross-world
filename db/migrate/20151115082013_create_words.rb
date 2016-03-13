@@ -6,6 +6,7 @@ class CreateWords < ActiveRecord::Migration
       t.text :about
       t.text :parents
       t.text :children
+      t.text :faq, :limit => 65536
       t.timestamps null: false
     end
   end
